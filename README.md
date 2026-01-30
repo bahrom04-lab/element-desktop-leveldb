@@ -2,10 +2,26 @@
 
 ## Project Overview
 
-This project is an **early prototype artifact** for **Milestone 4: Professionalism Section**, implementing a comprehensive LevelDB metadata parser specifically designed for Element Desktop forensic analysis in Rust.
+> [!NOTE]
+> This project is an **early prototype artifact** for **Milestone 4: 
+> Professionalism Section**, implementing a comprehensive LevelDB metadata 
+> parser specifically designed for Element Desktop forensic analysis in Rust. 
+>
+> **Primary Objective**: Extract, parse, and analyze critical metadata from 
+> Element Desktop's LevelDB database for digital forensic investigations.
 
-**Primary Objective**: Extract, parse, and analyze critical metadata from Element Desktop's LevelDB database for digital forensic investigations.
 
+> [!CAUTION]
+> ## Evidence Handling & Chain-of-Custody Considerations
+>
+> This prototype operates exclusively in read-only mode and requires the 
+> examiner to work on a copy of the original LevelDB database. The tool 
+> does not modify, delete, or write to the source database under any circumstances.
+>
+> While the current prototype does not yet compute cryptographic hashes of 
+> the input database, this functionality is planned for future versions to 
+> support full chain-of-custody verification and evidence integrity validation.
+> 
 ---
 
 ## Technology Stack & Crate Selection
