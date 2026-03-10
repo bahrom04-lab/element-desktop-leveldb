@@ -27,7 +27,7 @@ jobs:
         uses: DeterminateSystems/nix-installer-action@main
 
       - name: Build project with Nix
-        run: nix build
+        run: nix build . --show-trace
 
       - name: Run cargo tests
         run: nix develop --command -- cargo test

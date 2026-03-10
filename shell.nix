@@ -18,6 +18,10 @@ pkgs.mkShell {
     rust-analyzer
     cargo-watch
     cargo-expand
+
+    gtk4
+    libadwaita
+    pkg-config
   ];
 
   buildInputs = [

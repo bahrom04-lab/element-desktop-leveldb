@@ -34,16 +34,17 @@ pkgs.rustPlatform.buildRustPackage {
     # };
   };
 
-  # Compile time dependencies
   nativeBuildInputs = with pkgs; [
-    # Rust
     rustc
     cargo
+    # gtk4
+    # libadwaita
+    # pkg-config
+    # glib
   ];
 
-  buildInputs = [
-    pkgs.rustc
-    pkgs.cargo
+  buildInputs = with pkgs; [
+
   ];
 
   # Set Environment Variables

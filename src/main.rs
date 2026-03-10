@@ -24,21 +24,17 @@ fn contains_any(key: &str, patterns: &[&str]) -> bool {
 /// Element Desktop LevelDB metadata types
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ElementMetadata {
-    /// User ID and profile information
     pub user_id: Option<String>,
     pub display_name: Option<String>,
     pub avatar_url: Option<String>,
 
-    /// Account settings
     pub theme: Option<String>,
     pub language: Option<String>,
     pub notifications_enabled: Option<bool>,
 
-    /// Rooms and messages
     pub room_ids: Vec<String>,
     pub encrypted_rooms: Vec<String>,
 
-    /// Device and encryption
     pub device_id: Option<String>,
     pub device_name: Option<String>,
     pub curve25519_key: Option<String>,
