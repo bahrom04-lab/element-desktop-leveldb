@@ -1,8 +1,25 @@
-use anyhow::{anyhow, Result};
-use rusty_leveldb::{LdbIterator, Options, DB};
+use anyhow::{Result, anyhow};
+use rusty_leveldb::{DB, LdbIterator, Options};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 use std::sync::Mutex;
+
+const USER_IDS: &[&str] = &["user_id", "userId", "mx_user_id"];
+const DISPLAY_NAME: &[&str] = &["display_name", "displayName", "displayname"];
+const AVATAR_URL: &[&str] = &["avatar", "avatarUrl"];
+const THEME: &[&str] = &["theme"];
+const LANGUAGE: &[&str] = &["language", "locale"];
+const NOTIFICATION: &[&str] = &["notification"];
+const DEVICE_ID: &[&str] = &["device_id", "deviceId", "mx_device_id"];
+const DEVICE_NAME: &[&str] = &["device_name", "deviceName"];
+const CURVE25519: &[&str] = &["curve25519"];
+const ED25519: &[&str] = &["ed25519"];
+const ROOM: &[&str] = &["room", "id"];
+const ENCRYPTED: &[&str] = &["encrypted"];
+
+fn contains_any(key: &str, patterns: &[&str]) -> bool {
+    patterns.iter().any(|p| key.contains(p))
+}
 
 /// Element Desktop LevelDB metadata types
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -116,60 +133,32 @@ impl ElementLevelDBParser {
         // Clean LevelDB control characters
         let clean_value = value.trim_start_matches('\u{0001}').to_string();
 
-        match key {
-            // User information
-            k if k.contains("user_id") || k.contains("userId") || k.contains("mx_user_id") => {
-                metadata.user_id = Some(clean_value);
-            }
-            k if k.contains("display_name")
-                || k.contains("displayName")
-                || k.contains("displayname") =>
-            {
-                metadata.display_name = Some(clean_value);
-            }
-            k if k.contains("avatar") || k.contains("avatarUrl") || k.contains("avatar_url") => {
-                metadata.avatar_url = Some(clean_value);
-            }
-
-            // Settings
-            k if k.contains("theme") => {
-                metadata.theme = Some(clean_value);
-            }
-            k if k.contains("language") || k.contains("locale") => {
-                metadata.language = Some(clean_value);
-            }
-            k if k.contains("notification") => {
-                metadata.notifications_enabled = Some(clean_value.to_lowercase() == "true");
-            }
-
-            // Device and encryption keys
-            k if k.contains("device_id")
-                || k.contains("deviceId")
-                || k.contains("mx_device_id") =>
-            {
-                metadata.device_id = Some(clean_value);
-            }
-            k if k.contains("device_name") || k.contains("deviceName") => {
-                metadata.device_name = Some(clean_value);
-            }
-            k if k.contains("curve25519") => {
-                metadata.curve25519_key = Some(clean_value);
-            }
-            k if k.contains("ed25519") => {
-                metadata.ed25519_key = Some(clean_value);
-            }
-
-            // Room information
-            k if k.contains("room") && k.contains("id") => {
-                metadata.room_ids.push(clean_value);
-            }
-            k if k.contains("encrypted") => {
-                if clean_value.to_lowercase() == "true" {
-                    metadata.encrypted_rooms.push(key.to_string());
-                }
-            }
-
-            _ => {}
+        if contains_any(key, USER_IDS) {
+            metadata.user_id = Some(clean_value)
+        } else if contains_any(key, DISPLAY_NAME) {
+            metadata.display_name = Some(clean_value);
+        } else if contains_any(key, AVATAR_URL) {
+            metadata.avatar_url = Some(clean_value);
+        } else if contains_any(key, THEME) {
+            metadata.theme = Some(clean_value);
+        } else if contains_any(key, LANGUAGE) {
+            metadata.language = Some(clean_value);
+        } else if contains_any(key, NOTIFICATION) {
+            metadata.notifications_enabled = Some(clean_value.parse::<bool>().unwrap_or_default());
+        } else if contains_any(key, DEVICE_ID) {
+            metadata.device_id = Some(clean_value);
+        } else if contains_any(key, DEVICE_NAME) {
+            metadata.device_name = Some(clean_value);
+        } else if contains_any(key, CURVE25519) {
+            metadata.curve25519_key = Some(clean_value);
+        } else if contains_any(key, ED25519) {
+            metadata.ed25519_key = Some(clean_value);
+        } else if contains_any(key, ROOM) {
+            metadata.room_ids.push(clean_value);
+        } else if contains_any(key, ENCRYPTED)
+            && clean_value.to_lowercase().parse::<bool>().unwrap()
+        {
+            metadata.room_ids.push(key.to_string());
         }
     }
 
