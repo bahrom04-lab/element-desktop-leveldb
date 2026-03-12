@@ -13,4 +13,4 @@ path = "src/main.rs"
 
 [dependencies]
 relm4 = { version = "0.9.1", features = ["macros", "libadwaita", "gnome_47"] }
-# tokio = { version = "1.50", features = ["full"] }
+element-metadata = { path = "../element-metadata" }
