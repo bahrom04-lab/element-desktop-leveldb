@@ -35,7 +35,7 @@ Retrieved 2026-05-06, License - CC BY-SA 4.0
 </p>
 
 <p align="center">
-    <img src=".github/assets/welcome.png" alt="Welcome page" width=800>
+    <img src=".github/assets/welcome_page.png" alt="Welcome page" width=800>
 </p>
 
 ## Technology Stack & Crate Selection
