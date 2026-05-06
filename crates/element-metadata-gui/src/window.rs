@@ -233,6 +233,9 @@ impl SimpleComponent for App {
                 for item in encrypted_vec {
                     enc.push_back(item);
                 }
+
+                self.content = Self::format_metadata(&Some(metadata));
+                self.status = format!("Loaded successfully: {:?}", &path);
             }
             AppMsg::UpdateMetadata(metadata) => {
                 self.metadata = Some(metadata.clone());
