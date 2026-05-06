@@ -30,8 +30,13 @@ Posted by zjffdu, modified by community. See post 'Timeline' for change history
 Retrieved 2026-05-06, License - CC BY-SA 4.0
 -->
 
-![Parsed data](.github/assets/demo.png)
-![Welcome page](.github/assets/welcome.png)
+<p align="center">
+    <img src=".github/assets/demo.png" alt="Parsed data" width=800>
+</p>
+
+<p align="center">
+    <img src=".github/assets/welcome.png" alt="Welcome page" width=800>
+</p>
 
 ## Technology Stack & Crate Selection
 
@@ -118,13 +123,13 @@ pub struct ElementLevelDBParser {
 
 ### Key Parser Methods
 
-| Method | Purpose | Returns |
-|--------|---------|---------|
-| `open(path)` | Opens Element's LevelDB database | `Result<ElementLevelDBParser>` |
-| `parse_metadata()` | Extracts all metadata into structured format | `Result<ElementMetadata>` |
-| `to_json()` | Exports metadata as pretty-printed JSON | `Result<String>` |
-| `get_value(key)` | Retrieves single key-value pair | `Result<Option<String>>` |
-| `parse_key_value()` | Intelligent pattern matching for Element keys | `()` |
+| Method              | Purpose                                       | Returns                        |
+| ------------------- | --------------------------------------------- | ------------------------------ |
+| `open(path)`        | Opens Element's LevelDB database              | `Result<ElementLevelDBParser>` |
+| `parse_metadata()`  | Extracts all metadata into structured format  | `Result<ElementMetadata>`      |
+| `to_json()`         | Exports metadata as pretty-printed JSON       | `Result<String>`               |
+| `get_value(key)`    | Retrieves single key-value pair               | `Result<Option<String>>`       |
+| `parse_key_value()` | Intelligent pattern matching for Element keys | `()`                           |
 
 ---
 
