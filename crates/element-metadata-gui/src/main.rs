@@ -153,7 +153,7 @@ impl SimpleComponent for App {
                             set_title: "🔒 Encrypted Rooms",
                             #[watch]
                             set_description: Some(&format!("total rooms: {:?}", model.encrypted_rooms.len())),
-                            add = model.rooms.widget(),
+                            add = model.encrypted_rooms.widget(),
                         }
                     },
                 },
