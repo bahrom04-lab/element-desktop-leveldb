@@ -8,13 +8,14 @@ description = "Letʻs see whatʻs inside leveldb"
 authors = ["bahrom04"]
 
 [workspace]
+resolver = "3"
+
 members = [
     "crates/element-metadata",
     "crates/element-metadata-cli",
     "crates/element-metadata-gui",
 ]
 default-members = ["crates/element-metadata-gui"]
-
 [profile.release]
 lto = true
 

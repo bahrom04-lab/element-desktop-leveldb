@@ -22,7 +22,7 @@ fn contains_any(key: &str, patterns: &[&str]) -> bool {
 }
 
 /// Element Desktop LevelDB metadata types
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct ElementMetadata {
     pub user_id: Option<String>,
     pub display_name: Option<String>,
@@ -42,26 +42,6 @@ pub struct ElementMetadata {
 
     /// Raw metadata entries
     pub raw_entries: std::collections::HashMap<String, String>,
-}
-
-impl Default for ElementMetadata {
-    fn default() -> Self {
-        Self {
-            user_id: None,
-            display_name: None,
-            avatar_url: None,
-            theme: None,
-            language: None,
-            notifications_enabled: None,
-            room_ids: Vec::new(),
-            encrypted_rooms: Vec::new(),
-            device_id: None,
-            device_name: None,
-            curve25519_key: None,
-            ed25519_key: None,
-            raw_entries: std::collections::HashMap::new(),
-        }
-    }
 }
 
 /// Parses Element Desktop LevelDB for metadata
