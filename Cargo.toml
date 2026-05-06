@@ -1,5 +1,4 @@
 [workspace.package]
-name = "element-desktop-leveldb"
 version = "0.1.0"
 edition = "2024"
 license = "MIT"
@@ -12,14 +11,11 @@ authors = ["bahrom04"]
 members = [
     "crates/element-metadata",
     "crates/element-metadata-cli",
-    "crates/element-metadata-gui"
+    "crates/element-metadata-gui",
 ]
-default-members = [
-    "crates/element-metadata-gui"
-]
+default-members = ["crates/element-metadata-gui"]
 
 [profile.release]
 lto = true
 
 [workspace.dependencies]
-
