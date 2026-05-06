@@ -233,37 +233,37 @@ impl SimpleComponent for App {
             AppMsg::ParseLevelDB(path) => {
                 self.status = format!("Parsing: {}", path.display());
 
-                match ElementLevelDBParser::open(path.to_str().unwrap_or("")) {
-                    Ok(parser) => match parser.parse_metadata() {
-                        Ok(metadata) => {
-                            self.metadata = Some(metadata.clone());
-
-                            /* ---------- UPDATE FACTORIES ---------- */
-                            let mut rooms = self.rooms.guard();
-                            rooms.clear();
-                            for (i, id) in metadata.room_ids.iter().enumerate() {
-                                rooms.push_back((id.clone(), i));
-                            }
-
-                            let mut enc = self.encrypted_rooms.guard();
-                            enc.clear();
-                            for (i, id) in metadata.encrypted_rooms.iter().enumerate() {
-                                enc.push_back((id.clone(), i));
-                            }
-
-                            self.content = Self::format_metadata(&Some(metadata));
-                            self.status = "Loaded successfully".to_string();
-                        }
-                        Err(e) => {
-                            self.status = format!("Parse error: {}", e);
-                        }
-                    },
+                let parser = match ElementLevelDBParser::open(path.to_str().unwrap_or("")) {
+                    Ok(parser) => parser,
                     Err(e) => {
                         self.status = format!("Open error: {}", e);
+                        return;
                     }
+                };
+
+                let metadata = match parser.parse_metadata() {
+                    Ok(metadata) => metadata,
+                    Err(e) => {
+                        self.status = format!("Parse error: {}", e);
+                        return;
+                    }
+                };
+
+                let (rooms_vec, encrypted_vec) = Self::build_rooms(&metadata);
+                /* ---------- UPDATE ROOMS ---------- */
+                let mut rooms = self.rooms.guard();
+                rooms.clear();
+                for item in rooms_vec {
+                    rooms.push_back(item);
+                }
+
+                /* ---------- UPDATE ENCRYPTED ---------- */
+                let mut enc = self.encrypted_rooms.guard();
+                enc.clear();
+                for item in encrypted_vec {
+                    enc.push_back(item);
                 }
             }
-
             AppMsg::UpdateMetadata(metadata) => {
                 self.metadata = Some(metadata.clone());
                 self.content = Self::format_metadata(&self.metadata);
@@ -293,10 +293,26 @@ impl App {
             None => "<i>No metadata</i>".to_string(),
         }
     }
+    fn build_rooms(meta: &ElementMetadata) -> (Vec<(String, usize)>, Vec<(String, usize)>) {
+        let rooms = meta
+            .room_ids
+            .iter()
+            .enumerate()
+            .map(|(i, id)| (id.clone(), i))
+            .collect();
+
+        let encrypted = meta
+            .encrypted_rooms
+            .iter()
+            .enumerate()
+            .map(|(i, id)| (id.clone(), i))
+            .collect();
+
+        (rooms, encrypted)
+    }
 }
 
 /* ------------------ MAIN ------------------ */
-
 fn main() {
     let app = RelmApp::new("relm4.example.components");
     app.run::<App>(());
