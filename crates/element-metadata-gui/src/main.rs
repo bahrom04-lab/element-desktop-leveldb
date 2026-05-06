@@ -4,6 +4,7 @@
 
 use std::convert::identity;
 use std::path::PathBuf;
+use std::process::Command;
 
 use element_metadata::{ElementLevelDBParser, ElementMetadata};
 use gtk::{glib, prelude::*};
@@ -20,7 +21,7 @@ impl SimpleComponent for Header {
     view! {
         gtk::HeaderBar {
             pack_end = &gtk::Button {
-                set_label: "Browse LevelDB",
+                set_label: "Parse LevelDB",
                 connect_clicked[sender] => move |_| {
                     sender.output(AppMsg::OpenLevelDB).unwrap();
                 },
@@ -218,7 +219,7 @@ impl SimpleComponent for App {
             header,
             dialog,
             metadata: None,
-            content: "<i>Click 'Browse LevelDB' to select a folder</i>".to_string(),
+            content: "<i>Click 'Parse LevelDB' to automatically load and parse the database</i>".to_string(),
             status: "Ready".to_string(),
         };
         let widgets = view_output!();
@@ -229,30 +230,47 @@ impl SimpleComponent for App {
     fn update(&mut self, msg: Self::Input, sender: ComponentSender<Self>) {
         match msg {
             AppMsg::OpenLevelDB => {
-                // Create a file chooser dialog
-                let dialog = gtk::FileChooserDialog::builder()
-                    .action(gtk::FileChooserAction::SelectFolder)
-                    .modal(true)
-                    .build();
-
-                dialog.add_button("Cancel", gtk::ResponseType::Cancel);
-                dialog.add_button("Select", gtk::ResponseType::Accept);
-                dialog.set_title(Some("Select LevelDB Folder"));
-
-                let sender_clone = sender.clone();
-                dialog.connect_response(move |d, response_type| {
-                    if response_type == gtk::ResponseType::Accept {
-                        if let Some(file) = d.file() {
-                            if let Some(path) = file.path() {
-                                eprintln!("Selected path: {}", path.display());
-                                sender_clone.input(AppMsg::ParseLevelDB(path));
+                self.status = "Running LevelDB parser...".to_string();
+                
+                // Get the project directory and run the copy-leveldb.sh script
+                if let Ok(current_exe) = std::env::current_exe() {
+                    if let Some(project_dir) = current_exe.parent().and_then(|p| p.parent()).and_then(|p| p.parent()) {
+                        let script_path = project_dir.join("copy-leveldb.sh");
+                        let leveldb_path = project_dir.join("leveldb");
+                        
+                        eprintln!("Running script: {}", script_path.display());
+                        eprintln!("LevelDB path: {}", leveldb_path.display());
+                        
+                        match Command::new("bash")
+                            .arg(script_path)
+                            .output()
+                        {
+                            Ok(output) => {
+                                if output.status.success() {
+                                    eprintln!("Script executed successfully");
+                                    // Now parse the leveldb
+                                    sender.input(AppMsg::ParseLevelDB(leveldb_path));
+                                } else {
+                                    let stderr = String::from_utf8_lossy(&output.stderr);
+                                    eprintln!("Script failed: {}", stderr);
+                                    self.status = format!("Error running parser: {}", stderr);
+                                    self.content = format!("<b>Error:</b> {}", stderr);
+                                }
+                            }
+                            Err(e) => {
+                                eprintln!("Failed to execute script: {}", e);
+                                self.status = format!("Error executing parser: {}", e);
+                                self.content = format!("<b>Error:</b> {}", e);
                             }
                         }
+                    } else {
+                        self.status = "Error: Could not determine project directory".to_string();
+                        self.content = "<b>Error:</b> Could not determine project directory".to_string();
                     }
-                    d.close();
-                });
-
-                dialog.show();
+                } else {
+                    self.status = "Error: Could not get executable path".to_string();
+                    self.content = "<b>Error:</b> Could not get executable path".to_string();
+                }
             }
             AppMsg::ParseLevelDB(path) => {
                 eprintln!("Parsing: {}", path.display());

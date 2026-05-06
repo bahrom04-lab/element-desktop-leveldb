@@ -37,10 +37,9 @@ pkgs.rustPlatform.buildRustPackage {
   nativeBuildInputs = with pkgs; [
     rustc
     cargo
-    # gtk4
-    # libadwaita
-    # pkg-config
-    # glib
+    gtk4
+    libadwaita
+    pkg-config
   ];
 
   buildInputs = with pkgs; [
