@@ -14,12 +14,10 @@ let
   # Helpful nix function
   lib = pkgs.lib;
   # getLibFolder = pkg: "${pkg}/lib"; # uncomment for LDs
-
-  manifest = (pkgs.lib.importTOML ./Cargo.toml).package;
 in
 pkgs.rustPlatform.buildRustPackage {
-  pname = manifest.name;
-  version = manifest.version;
+  pname = "element-desktop-leveldb";
+  version = "0.1.0";
 
   # Your govnocodes
   src = pkgs.lib.cleanSource ./.;
@@ -37,13 +35,16 @@ pkgs.rustPlatform.buildRustPackage {
   nativeBuildInputs = with pkgs; [
     rustc
     cargo
-    gtk4
-    libadwaita
     pkg-config
+    wrapGAppsHook4
+    rustPlatform.cargoSetupHook
   ];
 
   buildInputs = with pkgs; [
-
+    gtk4
+    gnome-desktop
+    libadwaita
+    openssl
   ];
 
   # Set Environment Variables
@@ -51,8 +52,6 @@ pkgs.rustPlatform.buildRustPackage {
   RUST_SRC_PATH = "${pkgs.rust.packages.stable.rustPlatform.rustLibSrc}";
 
   meta = with lib; {
-    homepage = manifest.homepage;
-    description = manifest.description;
     # https://github.com/NixOS/nixpkgs/blob/master/lib/licenses.nix
     license = with licenses; [ mit ];
     platforms = platforms.linux;
